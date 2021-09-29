@@ -11,8 +11,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OnDemandDeliveryApp.Application.Helpers;
 using OnDemandDeliveryApp.Domain.Entitities;
 using OnDemandDeliveryApp.Domain.Interfaces;
+using OnDemandDeliveryApp.Domain.Interfaces.Base;
 using OnDemandDeliveryApp.Infrastructure;
 using OnDemandDeliveryApp.Infrastructure.Repositories;
 using System;
@@ -81,9 +83,11 @@ namespace OnDemandDeliveryApp
 
             });
 
-
+            services.AddScoped<IAuthorizationHelper, AuthorizationHelper>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IDispatcherRepository, DispatcherRepository>();
+            services.AddScoped<IAdministratorRepository, AdministratorRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
 
 
 

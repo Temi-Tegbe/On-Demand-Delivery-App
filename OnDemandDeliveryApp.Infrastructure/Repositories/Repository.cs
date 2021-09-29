@@ -7,7 +7,7 @@ using OnDemandDeliveryApp.Domain.Entitities;
 using OnDemandDeliveryApp.Domain.Interfaces.Base;
 using OnDemandDeliveryApp.Infrastructure;
 
-namespace Testr.Infrastructure.Repositories
+namespace OnDemandDeliveryApp.Infrastructure.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
@@ -37,7 +37,7 @@ namespace Testr.Infrastructure.Repositories
             return await _context.Set<T>().ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T> GetByIdAsync(long id)
         {
             return await _context.Set<T>().FindAsync(id);
         }

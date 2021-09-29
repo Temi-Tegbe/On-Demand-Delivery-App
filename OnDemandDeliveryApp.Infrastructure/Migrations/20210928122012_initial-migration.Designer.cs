@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnDemandDeliveryApp.Infrastructure;
 
-namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
+namespace OnDemandDeliveryApp.Infrastructure.Migrations
 {
     [DbContext(typeof(OnDemandDeliveryDbContext))]
-    [Migration("20210920124327_Initial-Migration")]
-    partial class InitialMigration
+    [Migration("20210928122012_initial-miration")]
+    partial class initialmiration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -120,6 +120,47 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("OnDemandDeliveryApp.Domain.Entitities.Administrator", b =>
+                {
+                    b.Property<long>("AdministratorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("DateRegistered")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PhoneNumber1")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("AdministratorId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Administrators");
                 });
 
             modelBuilder.Entity("OnDemandDeliveryApp.Domain.Entitities.ApplicationRole", b =>
@@ -284,7 +325,8 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
 
                     b.HasKey("CustomerId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Customers");
                 });
@@ -297,10 +339,15 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("AssignedDispatcherDispatcherId")
+                        .HasColumnType("bigint");
+
                     b.Property<Guid?>("AssignedProductProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("DispatcherId", "ProductId");
+
+                    b.HasIndex("AssignedDispatcherDispatcherId");
 
                     b.HasIndex("AssignedProductProductId");
 
@@ -309,32 +356,70 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
 
             modelBuilder.Entity("OnDemandDeliveryApp.Domain.Entitities.Dispatcher", b =>
                 {
-                    b.Property<Guid>("DispatcherId")
+                    b.Property<long>("DispatcherId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Address")
+                    b.Property<string>("CountryOfOrigin")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateRegistered")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PhoneNumber1")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PhoneNumber2")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ResidentialAddress")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("StateOfOrigin")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("DispatcherId");
 
-                    b.ToTable("Dispatcher");
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Dispatchers");
                 });
 
             modelBuilder.Entity("OnDemandDeliveryApp.Domain.Entitities.Product", b =>
@@ -411,11 +496,22 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OnDemandDeliveryApp.Domain.Entitities.Administrator", b =>
+                {
+                    b.HasOne("OnDemandDeliveryApp.Domain.Entitities.ApplicationUser", "User")
+                        .WithOne()
+                        .HasForeignKey("OnDemandDeliveryApp.Domain.Entitities.Administrator", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("OnDemandDeliveryApp.Domain.Entitities.Customer", b =>
                 {
                     b.HasOne("OnDemandDeliveryApp.Domain.Entitities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne()
+                        .HasForeignKey("OnDemandDeliveryApp.Domain.Entitities.Customer", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -424,19 +520,28 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
 
             modelBuilder.Entity("OnDemandDeliveryApp.Domain.Entitities.DispatchedProduct", b =>
                 {
+                    b.HasOne("OnDemandDeliveryApp.Domain.Entitities.Dispatcher", "AssignedDispatcher")
+                        .WithMany()
+                        .HasForeignKey("AssignedDispatcherDispatcherId");
+
                     b.HasOne("OnDemandDeliveryApp.Domain.Entitities.Product", "AssignedProduct")
                         .WithMany()
                         .HasForeignKey("AssignedProductProductId");
 
-                    b.HasOne("OnDemandDeliveryApp.Domain.Entitities.Dispatcher", "AssignedDispatcher")
-                        .WithMany()
-                        .HasForeignKey("DispatcherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("AssignedDispatcher");
 
                     b.Navigation("AssignedProduct");
+                });
+
+            modelBuilder.Entity("OnDemandDeliveryApp.Domain.Entitities.Dispatcher", b =>
+                {
+                    b.HasOne("OnDemandDeliveryApp.Domain.Entitities.ApplicationUser", "User")
+                        .WithOne()
+                        .HasForeignKey("OnDemandDeliveryApp.Domain.Entitities.Dispatcher", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

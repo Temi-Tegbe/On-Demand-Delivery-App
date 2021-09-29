@@ -9,10 +9,10 @@ namespace OnDemandDeliveryApp.Domain.Entitities
     public class ProuductCatalogue
     {
 
-        public ICollection<Product> Products {get; set;}
+        public List<Product> Products {get; set;}
 
 
-        //public rating {get; set;
+        
 
 
     }

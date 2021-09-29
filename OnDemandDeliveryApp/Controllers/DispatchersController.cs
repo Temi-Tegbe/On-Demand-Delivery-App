@@ -1,9 +1,11 @@
 ﻿
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using OnDemandDeliveryApp.Application.Helpers;
 using OnDemandDeliveryApp.Domain.Entitities;
 using OnDemandDeliveryApp.Domain.Entitities.DTOs;
 using OnDemandDeliveryApp.Domain.Interfaces;
@@ -26,9 +28,10 @@ namespace OnDemandDeliveryApp.Controllers
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly IDispatcherRepository _dispatcherRepository;
+        private readonly IAuthorizationHelper _authHelper;
 
         public DispatchersController(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager,
-            IConfiguration configuration, IDispatcherRepository dispatcherRepository)
+            IConfiguration configuration, IDispatcherRepository dispatcherRepository, IAuthorizationHelper authHelper)
 
 
         {
@@ -36,6 +39,7 @@ namespace OnDemandDeliveryApp.Controllers
             _roleManager = roleManager;
             _configuration = configuration;
             _dispatcherRepository = dispatcherRepository;
+            _authHelper = authHelper;
         }
 
         [HttpPost]
@@ -87,6 +91,62 @@ namespace OnDemandDeliveryApp.Controllers
         }
 
 
+
+        [HttpGet]
+        [Authorize(Roles = "SuperAdmin, Administrator")]
+        public async Task<ActionResult<List<Dispatcher>>> GetAllDispatchers()
+        {
+            Response responseBody = new Response();
+            var dispatchers = await _dispatcherRepository.GetAllAsync();
+            // Response body when fetched
+            if (dispatchers != null)
+            {
+                responseBody.Message = "Sucessfully fetched all dispatchers";
+                responseBody.Status = "Success";
+                responseBody.Payload = dispatchers;
+                return Ok(responseBody);
+            }
+
+            // Set response body when not fetched
+            responseBody.Message = "Dispatchers fetch failed";
+            responseBody.Status = "Failed";
+            responseBody.Payload = null;
+            return Ok(responseBody);
+        }
+
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<ActionResult<Dispatcher>> GetDispatcherAsync([FromRoute] long id)
+        {
+            Response responseBody = new Response();
+
+            if (await _authHelper.CurrentUserHasRoleAsync("Administrator") == false && _authHelper.GetCurrentCustomerId() != id)
+            {
+                responseBody.Message = "Sorry, you are not permitted to view this dispatcher's profile.";
+                responseBody.Payload = null;
+                responseBody.Status = "Failed";
+                return Forbid();
+            }
+
+            var dispatcher = await _dispatcherRepository.GetByIdAsync(id);
+
+            // Reponse body when not found
+            if (dispatcher == null)
+            {
+                responseBody.Message = "Dispatcher with corresponding id does not exists";
+                responseBody.Status = "Failed";
+                responseBody.Payload = null;
+                return NotFound(responseBody);
+            }
+
+            // Set response body when found
+            responseBody.Message = "Sucessfully fetched Dispatcher with id";
+            responseBody.Status = "Success";
+            responseBody.Payload = dispatcher;
+
+            return Ok(responseBody);
+        }
     }
 }
 

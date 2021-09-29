@@ -6,34 +6,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OnDemandDeliveryApp.Infrastructure.Repositories;
 
 namespace OnDemandDeliveryApp.Infrastructure.Repositories
 {
-    public class DispatcherRepository : Repository<Dispatcher>, IDispatcherRepository
+  public class AdministratorRepository : Repository<Administrator>, IAdministratorRepository
     {
         private readonly OnDemandDeliveryDbContext _context;
 
-        public DispatcherRepository(OnDemandDeliveryDbContext context) : base(context)
-
+        public AdministratorRepository(OnDemandDeliveryDbContext context) : base(context)
         {
             _context = context;
         }
 
-        public async Task AddAsync(DispatcherRegistration registrationInfo, ApplicationUser userInfo)
+       
+
+        public async Task AddAsync(AdministratorRegistration registrationInfo, ApplicationUser userInfo)
+
         {
-            _context.Customers.Add(
-                new Customer
+            
+            _context.Administrators.Add(
+                new Administrator
                 {
                     FirstName = registrationInfo.FirstName,
                     LastName = registrationInfo.LastName,
                     Email = registrationInfo.Email,
-                    ResidentialAddress = registrationInfo.ResidentialAddress,
-                    DateOfBirth = registrationInfo.DateOfBirth,
+
                     PhoneNumber1 = registrationInfo.PhoneNumber1,
-                    PhoneNumber2 = registrationInfo.PhoneNumber2,
-                    StateOfOrigin = registrationInfo.StateOfOrigin,
-                    Gender = registrationInfo.Gender,
-                    CountryOfOrigin = registrationInfo.CountryOfOrigin,
                     DateRegistered = DateTime.Now,
                     User = userInfo
 

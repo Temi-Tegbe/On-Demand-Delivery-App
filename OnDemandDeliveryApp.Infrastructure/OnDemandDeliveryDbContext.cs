@@ -38,12 +38,21 @@ namespace OnDemandDeliveryApp.Infrastructure
                 .HasOne(d => d.User)
                 .WithOne();
 
+            builder.Entity<Administrator>()
+                .HasOne(a => a.User)
+                .WithOne();
+                
+                
+            
+
             builder.Entity<DispatchedProduct>().HasKey(dp => new { dp.DispatcherId, dp.ProductId });
 
         }
 
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Dispatcher> Dispatchers { get; set; }
+        public DbSet<Administrator> Administrators { get; set; }
+        public DbSet<Product> Products { get; set; }
 
     }
 }

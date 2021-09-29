@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,12 +9,16 @@ namespace OnDemandDeliveryApp.Domain.Entitities
 {
   public  class Product
     {
+        [Key]
+        [Required]
+        public long ProductId { get; set; }
 
-        public Guid ProductId { get; set; }
-        public string ProductName { get; set; }
+        [Required]
+        public long UserId { get; set; }
 
-        public string Category { get; set; }
-        public string ProductDescription { get; set; }
-        public double Price { get; set; }
+        [MaxLength(50)]
+        [Required(ErrorMessage = "Product location is required")]
+        public string Location { get; set; }
+        public DateTime DateRegistered { get; set; }
     }
 }

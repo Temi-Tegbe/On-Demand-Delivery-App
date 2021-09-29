@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
+namespace OnDemandDeliveryApp.Infrastructure.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class initialmiration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -49,22 +49,6 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
                 });
 
             migrationBuilder.CreateTable(
-                name: "Dispatcher",
-                columns: table => new
-                {
-                    DispatcherId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateRegistered = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Dispatcher", x => x.DispatcherId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Product",
                 columns: table => new
                 {
@@ -96,6 +80,30 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Administrators",
+                columns: table => new
+                {
+                    AdministratorId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    DateRegistered = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    PhoneNumber1 = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Administrators", x => x.AdministratorId);
+                    table.ForeignKey(
+                        name: "FK_Administrators_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -216,22 +224,53 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
                 });
 
             migrationBuilder.CreateTable(
+                name: "Dispatchers",
+                columns: table => new
+                {
+                    DispatcherId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    DateRegistered = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ResidentialAddress = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PhoneNumber1 = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    PhoneNumber2 = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    StateOfOrigin = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Gender = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CountryOfOrigin = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Dispatchers", x => x.DispatcherId);
+                    table.ForeignKey(
+                        name: "FK_Dispatchers_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DispatchedProduct",
                 columns: table => new
                 {
                     ProductId = table.Column<long>(type: "bigint", nullable: false),
                     DispatcherId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AssignedProductProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    AssignedProductProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    AssignedDispatcherDispatcherId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DispatchedProduct", x => new { x.DispatcherId, x.ProductId });
                     table.ForeignKey(
-                        name: "FK_DispatchedProduct_Dispatcher_DispatcherId",
-                        column: x => x.DispatcherId,
-                        principalTable: "Dispatcher",
+                        name: "FK_DispatchedProduct_Dispatchers_AssignedDispatcherDispatcherId",
+                        column: x => x.AssignedDispatcherDispatcherId,
+                        principalTable: "Dispatchers",
                         principalColumn: "DispatcherId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_DispatchedProduct_Product_AssignedProductProductId",
                         column: x => x.AssignedProductProductId,
@@ -239,6 +278,12 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
                         principalColumn: "ProductId",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Administrators_UserId",
+                table: "Administrators",
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -282,16 +327,31 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
             migrationBuilder.CreateIndex(
                 name: "IX_Customers_UserId",
                 table: "Customers",
-                column: "UserId");
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DispatchedProduct_AssignedDispatcherDispatcherId",
+                table: "DispatchedProduct",
+                column: "AssignedDispatcherDispatcherId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DispatchedProduct_AssignedProductProductId",
                 table: "DispatchedProduct",
                 column: "AssignedProductProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Dispatchers_UserId",
+                table: "Dispatchers",
+                column: "UserId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Administrators");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -317,13 +377,13 @@ namespace OnDemandDeliveryApp.Infrastructure.OnDemandDeliveryApp.Infrastructure
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Dispatcher");
+                name: "Dispatchers");
 
             migrationBuilder.DropTable(
                 name: "Product");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

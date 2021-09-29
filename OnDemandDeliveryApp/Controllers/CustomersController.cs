@@ -1,9 +1,11 @@
 ﻿
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using OnDemandDeliveryApp.Application.Helpers;
 using OnDemandDeliveryApp.Domain.Entitities;
 using OnDemandDeliveryApp.Domain.Entitities.DTOs;
 using OnDemandDeliveryApp.Domain.Interfaces;
@@ -26,9 +28,10 @@ namespace OnDemandDeliveryApp.Controllers
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly ICustomerRepository _customerRepository;
+        private readonly IAuthorizationHelper _authHelper;
 
         public CustomersController(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager,
-            IConfiguration configuration, ICustomerRepository customerRepository)
+            IConfiguration configuration, ICustomerRepository customerRepository, IAuthorizationHelper authHelper)
 
 
         {
@@ -36,6 +39,7 @@ namespace OnDemandDeliveryApp.Controllers
             _roleManager = roleManager;
             _configuration = configuration;
             _customerRepository = customerRepository;
+            _authHelper = authHelper;
         }
 
         [HttpPost]
@@ -86,6 +90,63 @@ namespace OnDemandDeliveryApp.Controllers
             return Created($"/users/{user.Id}", responseBody);
         }
 
+
+        [HttpGet]
+        [Authorize(Roles = "SuperAdmin, Administrator")]
+        [Route("GetAllCustomers")]
+        public async Task<ActionResult<List<Customer>>> GetAllCustomers()
+        {
+            Response responseBody = new Response();
+            var customers = await _customerRepository.GetAllAsync();
+            // Response body when fetched
+            if (customers != null)
+            {
+                responseBody.Message = "Sucessfully fetched all customers";
+                responseBody.Status = "Success";
+                responseBody.Payload = customers;
+                return Ok(responseBody);
+            }
+
+            // Set response body when not fetched
+            responseBody.Message = "Customers fetch failed";
+            responseBody.Status = "Failed";
+            responseBody.Payload = null;
+            return Ok(responseBody);
+        }
+
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<ActionResult<Customer>> GetCustomerAsync([FromRoute] long id)
+        {
+            Response responseBody = new Response();
+
+            if (await _authHelper.CurrentUserHasRoleAsync("Administrator") == false && _authHelper.GetCurrentCustomerId() != id)
+            {
+                responseBody.Message = "Sorry, you are not permitted to view this candidate's profile.";
+                responseBody.Payload = null;
+                responseBody.Status = "Failed";
+                return Forbid();
+            }
+
+            var customer = await _customerRepository.GetByIdAsync(id);
+
+            // Reponse body when not found
+            if (customer == null)
+            {
+                responseBody.Message = "Customer with corresponding id does not exists";
+                responseBody.Status = "Failed";
+                responseBody.Payload = null;
+                return NotFound(responseBody);
+            }
+
+            // Set response body when found
+            responseBody.Message = "Sucessfully fetched Customer with id";
+            responseBody.Status = "Success";
+            responseBody.Payload = customer;
+
+            return Ok(responseBody);
+        }
 
     }
 }

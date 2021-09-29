@@ -21,4 +21,8 @@
     <ProjectReference Include="..\OnDemandDeliveryApp.Domain\OnDemandDeliveryApp.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="OnDemandDeliveryApp.Infrastructure\" />
+  </ItemGroup>
+
 </Project>
