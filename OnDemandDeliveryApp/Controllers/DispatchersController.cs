@@ -121,7 +121,7 @@ namespace OnDemandDeliveryApp.Controllers
         {
             Response responseBody = new Response();
 
-            if (await _authHelper.CurrentUserHasRoleAsync("Administrator") == false && _authHelper.GetCurrentCustomerId() != id)
+            if (await _authHelper.CurrentUserHasRoleAsync("Administrator") == false && _authHelper.GetCurrentDispatcherId() != id)
             {
                 responseBody.Message = "Sorry, you are not permitted to view this dispatcher's profile.";
                 responseBody.Payload = null;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OnDemandDeliveryApp.Domain.Entitities.Base;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OnDemandDeliveryApp.Domain.Entitities
 {
-  public  class Product
+  public  class Product : ProductBase
     {
         [Key]
         [Required]
@@ -16,9 +17,8 @@ namespace OnDemandDeliveryApp.Domain.Entitities
         [Required]
         public long UserId { get; set; }
 
-        [MaxLength(50)]
-        [Required(ErrorMessage = "Product location is required")]
-        public string Location { get; set; }
+        //public ApplicationUser User { get; set; }
+
         public DateTime DateRegistered { get; set; }
     }
 }

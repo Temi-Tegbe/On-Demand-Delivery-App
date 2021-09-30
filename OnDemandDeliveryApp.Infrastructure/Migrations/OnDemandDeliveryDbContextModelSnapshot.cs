@@ -308,6 +308,9 @@ namespace OnDemandDeliveryApp.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<long?>("ProductId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("ResidentialAddress")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -322,6 +325,8 @@ namespace OnDemandDeliveryApp.Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("CustomerId");
+
+                    b.HasIndex("ProductId");
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -340,14 +345,11 @@ namespace OnDemandDeliveryApp.Infrastructure.Migrations
                     b.Property<long?>("AssignedDispatcherDispatcherId")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid?>("AssignedProductProductId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("DispatcherId", "ProductId");
 
                     b.HasIndex("AssignedDispatcherDispatcherId");
 
-                    b.HasIndex("AssignedProductProductId");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("DispatchedProduct");
                 });
@@ -422,25 +424,25 @@ namespace OnDemandDeliveryApp.Infrastructure.Migrations
 
             modelBuilder.Entity("OnDemandDeliveryApp.Domain.Entitities.Product", b =>
                 {
-                    b.Property<Guid>("ProductId")
+                    b.Property<long>("ProductId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Category")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("DateRegistered")
+                        .HasColumnType("datetime2");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("ProductDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProductName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("ProductId");
 
-                    b.ToTable("Product");
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
@@ -507,11 +509,17 @@ namespace OnDemandDeliveryApp.Infrastructure.Migrations
 
             modelBuilder.Entity("OnDemandDeliveryApp.Domain.Entitities.Customer", b =>
                 {
+                    b.HasOne("OnDemandDeliveryApp.Domain.Entitities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+
                     b.HasOne("OnDemandDeliveryApp.Domain.Entitities.ApplicationUser", "User")
                         .WithOne()
                         .HasForeignKey("OnDemandDeliveryApp.Domain.Entitities.Customer", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Product");
 
                     b.Navigation("User");
                 });
@@ -524,7 +532,9 @@ namespace OnDemandDeliveryApp.Infrastructure.Migrations
 
                     b.HasOne("OnDemandDeliveryApp.Domain.Entitities.Product", "AssignedProduct")
                         .WithMany()
-                        .HasForeignKey("AssignedProductProductId");
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AssignedDispatcher");
 
